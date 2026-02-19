@@ -1,0 +1,4 @@
+comment = 'emulate_old_ubuntu_c_utf8_strcoll'
+default_version = '1.0'
+module_pathname = '$libdir/emulate_old_ubuntu_c_utf8_strcoll'
+relocatable = true

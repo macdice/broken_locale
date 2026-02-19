@@ -1,0 +1,26 @@
+A tiny experimental PostgreSQL extension to try to emulate an ancient broken
+locale in a dead version of Debian/Ubuntu's distribution of glibc.
+
+Though its /usr/share/i18n/locales/C file *looked* OK (it listed every
+codepoint, in order), it doesn't seem to work, either on old glibc or if
+recompiled with modern localedef + glibc.
+
+all_codepoints_ubuntu1804-C.UTF8.txt was captured from Ubuntu 18.04's
+/usr/bin/sort given the output print_all_codepoints.py, with
+LANG and LC_COLLATE set to C.UTF-8.  It is used to build a lookup table in this
+module, to reproduce it faithfully if you use C.UTF-8 as the database default
+locale.  The function to do that is injected into PostgreSQL's locale system at
+session start through dubious means.
+
+That wouldn't work in general due to the weights and rules used in "real"
+locales.  But this is a simple character-at-a-time ordering, so observing the
+order of all possible codepoints should be sufficient to reproduce it, I think?
+
+To try it, "make install" with pg_config visible in your PATH, and put this in
+your postgresql.conf:
+
+  session_preload_libraries='emulate_old_ubuntu_c_utf8_strcoll.so'
+
+Note that modern glibc has proper built-in support for C.UTF-8, and sorts by
+codepoint order correctly.
+
